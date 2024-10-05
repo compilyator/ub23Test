@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Encrypted Notes</title>
+</head>
+<body>
+  <h1>Encrypted Notes</h1>
+
+  <h2>Create a Note</h2>
+  <form id="create-note-form">
+    <label>Title: <input type="text" id="title" required></label><br>
+    <label>Content: <textarea id="content" required></textarea></label><br>
+    <label>Password: <input type="password" id="password" required></label><br>
+    <button type="submit">Create Note</button>
+  </form>
+
+  <h2>Retrieve Note</h2>
+  <form id="get-note-form">
+    <label>Note ID: <input type="text" id="note-id" required></label><br>
+    <label>Password: <input type="password" id="get-password" required></label><br>
+    <button type="submit">Get Note</button>
+  </form>
+
+  <div id="note-content"></div>
+
+  <script>
+    const createNoteForm = document.getElementById('create-note-form');
+    const getNoteForm = document.getElementById('get-note-form');
+    const noteContentDiv = document.getElementById('note-content');
+
+    // Create note
+    createNoteForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const title = document.getElementById('title').value;
+      const content = document.getElementById('content').value;
+      const password = document.getElementById('password').value;
+
+      const response = await fetch('/notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, content, password })
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        alert('Note created successfully!');
+      } else {
+        alert('Error creating note: ' + data.message);
+      }
+    });
+
+    // Retrieve note
+    getNoteForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const noteId = document.getElementById('note-id').value;
+      const password = document.getElementById('get-password').value;
+
+      const response = await fetch(`/notes/${noteId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        noteContentDiv.innerHTML = `<h3>${data.title}</h3><p>${data.content}</p>`;
+      } else {
+        alert('Error retrieving note: ' + data.message);
+      }
+    });
+  </script>
+</body>
+</html>
